@@ -60,10 +60,12 @@ exampleLocations.forEach( function (l, i) {
   intro.appendChild(button);
 });
 
+/*
 var credit = document.createElement('p');
 credit.innerHTML = 'Andy Woodruff, <a href="http://axismaps.com" target="_blank">Axis Maps</a> | <a href="http://twitter.com/awoodruff" target="_blank">@awoodruff</a>';
 credit.id = 'credit';
 document.getElementById('wrapper').appendChild(credit);
+*/
 
 var map_start_location = exampleLocations[Math.floor(Math.random()*exampleLocations.length)].coords;
 var url_hash = window.location.hash.slice(1, window.location.hash.length).split('/');

@@ -339,29 +339,16 @@ function createPath (startCoords) {
   return null;
 }
 
+// convert mapzen tile color to elevation value
 function elev(index, demData) {
   if (index < 0 || demData[index] === undefined) return undefined;
   return (demData[index] * 256 + demData[index+1] + demData[index+2] / 256) - 32768;
 }
 
+// helper to get imageData index for a given x/y
 function getIndexForCoordinates(width, x,y) {
   return width * y * 4 + 4 * x;
 }
-
-function kill(arr, paths) {
-  arr.sort(function(a,b){ return parseInt(b)-parseInt(a)});
-  for (var i=arr.length-1; i >= 0; i--) {
-    var rx = parseInt(Math.random() * 256);
-    var ry = parseInt(Math.random() * 256);
-    paths.splice(parseInt(arr[i]),1);
-  }
-  if (paths.length >= 10000) return;
-  var n = 5; while(n-- > 0){
-    var rx = parseInt(Math.random() * width);
-    var ry = parseInt(Math.random() * height);
-    paths.push({start:[rx,ry], current:[rx,ry], count:0, recent:[]});
-  }
- }
 
 function drawFlows() {
   document.getElementById('drawing').style.display = 'none';

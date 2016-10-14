@@ -45,7 +45,7 @@ var exampleLocations = [
   {name: 'Mount Fuji', coords: [35.3577, 138.7331, 13]},
   {name: 'Big Island, Hawaii', coords: [19.6801, -155.5132, 9]},
   {name: 'Grand Canyon', coords: [36.0469, -113.8416, 13]},
-  {name: 'Mount Everest', coords: [27.9885, 86.9233, 12]},
+  //{name: 'Mount Everest', coords: [27.9885, 86.9233, 12]},
   {name: 'Mount Rainier', coords:[46.8358, -121.7663, 11]}
 ];
 
@@ -152,6 +152,17 @@ function reverseTransform() {
   var top_left = map.containerPointToLayerPoint([0, 0]);
   L.DomUtil.setPosition(flowCanvas, top_left);
 };
+
+document.getElementById('search').addEventListener('keydown', function (e) {
+  if (e.keyCode == 13) {
+    loadJSON('https://search.mapzen.com/v1/search?apiKey=GR9NVHq&text=' + this.value, function (result) {
+      if (result.features.length) {
+        var zoom;
+        map.setView([result.features[0].geometry.coordinates[1], result.features[0].geometry.coordinates[0]], 9);
+      }
+    });
+  }
+})
 
 
 function getRelief(){
@@ -394,4 +405,23 @@ function drawFlows() {
       flowContext.stroke(); 
     }
   }, 50);
+}
+
+function loadJSON(path, success, error)
+{
+  var xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function()
+  {
+      if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+              if (success)
+                  success(JSON.parse(xhr.responseText));
+          } else {
+              if (error)
+                  error(xhr);
+          }
+      }
+  };
+  xhr.open("GET", path, true);
+  xhr.send();
 }

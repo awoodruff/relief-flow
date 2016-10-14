@@ -82,10 +82,12 @@ var LayerToggle = L.Control.extend({
     var el = document.createElement('div');
     el.className = 'button';
     el.id = 'toggle-terrain';
-    el.innerHTML = 'toggle terrain';
+    el.innerHTML = 'toggle background';
     el.onclick = function () {
       if (hillshade._container.style.display != 'none') hillshade._container.style.display = 'none';
       else hillshade._container.style.display = 'block';
+      if (lakes._container.style.display != 'none') lakes._container.style.display = 'none';
+      else lakes._container.style.display = 'block';
     }
     return el;
   }

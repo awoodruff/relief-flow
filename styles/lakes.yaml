@@ -1,0 +1,70 @@
+﻿settings:
+    boundaries:
+        - &country_boundary           'rgba(127,127,127,0.5)'
+        - &region_boundary            'rgba(127,127,127,0.5)'
+        - &subregion_boundary         'rgba(127,127,127,0.5)'
+
+
+sources:
+    osm: 
+        type: TopoJSON
+        url: https://vector.mapzen.com/osm/all/{z}/{x}/{y}.topojson?api_key=mapzen-GR9NVHq
+        max_zoom: 16
+
+layers:
+    biglakes:
+        data: { source: osm, layer: water}
+        filter:
+            area: {min: 400000000}
+        draw:
+            polygons:
+                color: '#000000'
+    boundaries:
+        data: { source: osm, layer: boundaries }
+        filter: { $zoom: { max: 12} }
+        # country subdivisions (states, provinces)
+        draw:
+            lines:
+                interactive: true
+                order: function() { return feature.sort_key; }
+#                color: red
+#                width: [[9, 1px], [14, 2px], [16, 3px], [17, 8m]]
+        country:
+            filter:
+                any:
+                    - type: country
+                    - kind: nation
+                    - admin_level: 2
+            draw:
+                lines:
+                    color: *country_boundary
+                    width: [[0, 1px], [5, 1px], [9, 2px], [14, 3px], [16, 4px], [17, 12m]]
+            water:
+                filter: { maritime_boundary: yes }
+                draw:
+                    country-outerline:
+                        visible: false
+                    lines:
+                        visible: false
+
+        region:
+            filter:
+                any:
+                    - type: state
+                    # territorial here is probably a hack
+                    - kind: [state, department, region, provincial, territorial]
+                    - admin_level: 4
+            draw:
+                lines:
+                    color: *region_boundary
+                    width: [[0, 0.5px], [5, 0.5px], [9, 1px], [14, 2px], [16, 3px], [17, 10m]]
+            water:
+                filter: { maritime_boundary: yes }
+                draw:
+                    lines:
+                        visible: false
+            early:
+                filter: { scalerank: [0,3,4,5,6,7,8,9,10], $zoom: { max: 8 } }
+                draw:
+                    lines:
+                        visible: false

@@ -2,6 +2,7 @@
 <head>
   <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+  <meta charset="utf-8">
   <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
   <script src="lib/leaflet-hash.js"></script>
   <script src="https://mapzen.com/tangram/0.9/tangram.min.js"></script>
@@ -79,6 +80,14 @@
       display: none;
     }
 
+    #search {
+      border-radius: 3px;
+      padding-left: 30px;
+      background: rgba(255,255,255,.8) url(search.png) no-repeat 5px center;
+      cursor: text;
+      color: #333;
+    }
+
   </style>
 </head>
 
@@ -86,11 +95,13 @@
   <div id='wrapper'>
     <div id='map' style='width:800px;height:530px;'></div>
     <div id='intro'>
-      <p>Move the map to explore the world's flowing terrain, or try one of the example locations below.<p>
+      <p>Move the map to explore the world's flowing terrain, or try one of the example locations below.</p>
+      <input type='text' size='16' id='search' class='button'></input>
     </div>
     <div id='drawing'>
-      Drawing... please be patient!
+      Loading...
     </div>
+    
   </div>
   <script src='flows.js'></script>
 </body>

@@ -109,7 +109,7 @@ map.on('moveend', function() {
   clearInterval(seed);
   flowContext.clearRect(0,0,width,height);
   clearTimeout(wait);
-  wait = setTimeout(getRelief,1000);  // redraw after a delay in case map is moved again soon after
+  wait = setTimeout(getRelief,500);  // redraw after a delay in case map is moved again soon after
   document.getElementById('drawing').style.display = 'block';
 });
 
@@ -131,7 +131,7 @@ var CanvasLayer = L.GridLayer.extend({
       img.onload = function() {
         // we wait for tile images to load before we can redraw the map
         clearTimeout(wait);
-        wait = setTimeout(getRelief,1500); // only draw after a reasonable delay, so that we don't redraw on every single tile load
+        wait = setTimeout(getRelief,500); // only draw after a reasonable delay, so that we don't redraw on every single tile load
       }
       img.src = 'https://tile.mapzen.com/mapzen/terrain/v1/terrarium/'+coords.z+'/'+coords.x+'/'+coords.y+'.png?api_key=mapzen-GR9NVHq'
       return tile;
@@ -188,91 +188,6 @@ function getRelief(){
   demImageData = demContext.getImageData(0,0,width,height);
   demData = demImageData.data;
 
-  // now loop through each DEM pixel to figure out where a path traveling through it would go next
-  var n=demData.length;
-  var invWidth = 1/width;
-  while(n-=4) {
-    if (elev(n,demData) < 1) {
-      continue;
-    }
-    // x/y coordinates from imageData index
-    var x = (n * .25) % width;
-    var y = Math.floor((n * .25) * invWidth);
-    
-    centerValue = elev(n,demData);
-    
-    /*
-    look at nearby locations for the next lowest elevation, but not adjacent pixels
-    going 3 or 4 pixels out, and also avoiding exact 45 degree angles, makes for a smoother look
-
-    looking at the spots labeled X below. O is the current point
-
-    - - - X X X - - -
-    - - X - - - X - -
-    - X - - - - - X -
-    X - - - - - - - X
-    X - - - O - - - X
-    X - - - - - - - X
-    - X - - - - - X -
-    - - X - - - X - -
-    - - - X X X - - -
-    */
-
-    var nearby =[
-      [-1,-4],
-      [-1,4],
-      [0,-4], // top, 2
-      [0,4],  // bottom, 3
-      [1,-4],
-      [1,4],
-      [-2,-3],  //topleft, 6
-      [-2,3], // bottomleft, 7
-      [2,-3], // topright, 8
-      [2,3],  // bottomright, 9
-      [-3,-2], // topleft, 10
-      [-3,2], //bottomleft, 11
-      [3,-2], // topright, 12
-      [3,2], // bottomright, 13
-      [-4,-1],
-      [-4,0], // left, 15
-      [-4,1], 
-      [4,-1],
-      [4,0],  // right, 18
-      [4,1]
-    ];
-
-    var edge = false;
-    var min = Infinity;
-    var minVal;
-
-    for (var c=0; c<nearby.length; c++) {
-      index = getIndexForCoordinates(width, x + nearby[c][0], y + nearby[c][1]);
-      var e = elev(index,demData);
-      var val = [x + nearby[c][0], y + nearby[c][1], e];
-      if (e !== undefined) {
-        min = Math.min(min,e);
-        if (e == min) minVal = val;
-      }
-      // rough check whether the trend is off screen; we'll stop here if so
-      // avoids paths taking a sharp turn and running down the edge of the screen
-      if (x == 0 && c == 18 && e > centerValue) edge = true;
-      if (y == 0 && c == 3 && e > centerValue) edge = true;
-      if (x == width-1 && c == 15 && e > centerValue) edge = true;
-      if (y == height-1 && c == 2 && e > centerValue) edge = true;
-    }
-
-    // various checks for whether to keep the next point
-    if (edge) continue;
-    if (!minVal || minVal[2] > centerValue) continue;
-    if (minVal[0] < 0 || minVal[0] >= width || minVal[1] < 0 || minVal[1] >= height) {
-      continue;
-    }
-
-    // if all is good, store the next lowest point
-    var next = [minVal[0], minVal[1]];
-    data[n] = {v:centerValue, next: next};
-  }
-
   // clear out previous paths
   paths = [];
 
@@ -295,6 +210,87 @@ function getRelief(){
   drawFlows();
 }
 
+// for a given location, get the next lowest adjacent locaiton, i.e. where a flow would go from here
+function getDataAtPoint (n,x,y) {
+  if (elev(n,demData) < 1) {
+    return;
+  }
+  
+  var centerValue = elev(n,demData);
+  
+  /*
+  look at nearby locations for the next lowest elevation, but not adjacent pixels
+  going 3 or 4 pixels out, and also avoiding exact 45 degree angles, makes for a smoother look
+
+  looking at the spots labeled X below. O is the current point
+
+  - - - X X X - - -
+  - - X - - - X - -
+  - X - - - - - X -
+  X - - - - - - - X
+  X - - - O - - - X
+  X - - - - - - - X
+  - X - - - - - X -
+  - - X - - - X - -
+  - - - X X X - - -
+  */
+
+  var nearby =[
+    [-1,-4],
+    [-1,4],
+    [0,-4], // top, 2
+    [0,4],  // bottom, 3
+    [1,-4],
+    [1,4],
+    [-2,-3],  //topleft, 6
+    [-2,3], // bottomleft, 7
+    [2,-3], // topright, 8
+    [2,3],  // bottomright, 9
+    [-3,-2], // topleft, 10
+    [-3,2], //bottomleft, 11
+    [3,-2], // topright, 12
+    [3,2], // bottomright, 13
+    [-4,-1],
+    [-4,0], // left, 15
+    [-4,1], 
+    [4,-1],
+    [4,0],  // right, 18
+    [4,1]
+  ];
+
+  var edge = false;
+  var min = Infinity;
+  var minVal;
+
+  for (var c=0; c<nearby.length; c++) {
+    index = getIndexForCoordinates(width, x + nearby[c][0], y + nearby[c][1]);
+    var e = elev(index,demData);
+    var val = [x + nearby[c][0], y + nearby[c][1], e];
+    if (e !== undefined) {
+      min = Math.min(min,e);
+      if (e == min) minVal = val;
+    }
+    // rough check whether the trend is off screen; we'll stop here if so
+    // avoids paths taking a sharp turn and running down the edge of the screen
+    if (x == 0 && c == 18 && e > centerValue) edge = true;
+    if (y == 0 && c == 3 && e > centerValue) edge = true;
+    if (x == width-1 && c == 15 && e > centerValue) edge = true;
+    if (y == height-1 && c == 2 && e > centerValue) edge = true;
+  }
+
+  // various checks for whether to keep the next point
+  if (edge) return;
+  if (!minVal || minVal[2] > centerValue) return;
+  if (minVal[0] < 0 || minVal[0] >= width || minVal[1] < 0 || minVal[1] >= height) {
+    return;
+  }
+
+  // if all is good, store the next lowest point
+  var next = [minVal[0], minVal[1]];
+
+  data[n] = {v:centerValue, next: next};
+}
+
 function createPath (startCoords) {
   var keepGoing = true;
   var path = {count: 0, currentIndex: 0, coords:[startCoords]};
@@ -308,6 +304,10 @@ function createPath (startCoords) {
     var x = current[0];
     var y = current[1];
     var i = getIndexForCoordinates(width, x, y);
+
+    // if there is no data (i.e., elevation and 'next') at this point, calculate it
+    if (!data[i]) getDataAtPoint(i,x,y);
+    // if there's still no data after that, things will fail below and the path will end
 
     if (!demData[i] || elev(i, demData) <= 0 || !data[i]) { // check to make sure data exists here; honestly not sure what this is catching anymore
       keepGoing = false;

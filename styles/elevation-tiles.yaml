@@ -11,11 +11,11 @@
 lights:
     directional1:
         type: directional
-        direction: [1,-.5, -.5]
+        direction: [-1,-.5, -.6]
         diffuse: 0.1
     directional2:
         type: directional
-        direction: [-1, -1, -.5]
+        direction: [1, -1, -.4]
         diffuse: 0.4
 
 

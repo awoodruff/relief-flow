@@ -46,7 +46,8 @@ var exampleLocations = [
   {name: 'Big Island, Hawaii', coords: [19.6801, -155.5132, 9]},
   {name: 'Grand Canyon', coords: [36.0469, -113.8416, 13]},
   //{name: 'Mount Everest', coords: [27.9885, 86.9233, 12]},
-  {name: 'Mount Rainier', coords:[46.8358, -121.7663, 11]}
+  {name: 'Mount Rainier', coords:[46.8358, -121.7663, 11]},
+  {name: 'White Mountains', coords:[44.0859, -71.4441, 11]}
 ];
 
 var intro = document.getElementById('intro');

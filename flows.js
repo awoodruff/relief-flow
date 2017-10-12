@@ -160,7 +160,7 @@ function reverseTransform() {
 
 document.getElementById('search').addEventListener('keydown', function (e) {
   if (e.keyCode == 13) {
-    loadJSON('https://search.mapzen.com/v1/search?apiKey=GR9NVHq&text=' + this.value, function (result) {
+    loadJSON('https://search.mapzen.com/v1/search?api_key=mapzen-GR9NVHq&text=' + this.value, function (result) {
       if (result.features.length) {
         var zoom;
         map.setView([result.features[0].geometry.coordinates[1], result.features[0].geometry.coordinates[0]], 9);

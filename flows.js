@@ -87,10 +87,12 @@ var LayerToggle = L.Control.extend({
     el.id = 'toggle-terrain';
     el.innerHTML = 'toggle background';
     el.onclick = function () {
-      if (hillshade._container.style.display != 'none') hillshade._container.style.display = 'none';
-      else hillshade._container.style.display = 'block';
-      if (lakes._container.style.display != 'none') lakes._container.style.display = 'none';
-      else lakes._container.style.display = 'block';
+      // if (hillshade._container.style.display != 'none') hillshade._container.style.display = 'none';
+      // else hillshade._container.style.display = 'block';
+      // if (lakes._container.style.display != 'none') lakes._container.style.display = 'none';
+      // else lakes._container.style.display = 'block';
+      if (bgLayer.options.opacity !== 0) bgLayer.setOpacity(0);
+      else bgLayer.setOpacity(1);
     }
     return el;
   }
@@ -99,9 +101,15 @@ var LayerToggle = L.Control.extend({
 new LayerToggle({position: 'bottomright'}).addTo(map);
 L.control.zoom({position:'bottomright'}).addTo(map);
 
-var hillshade = Tangram.leafletLayer({
-    scene: 'styles/elevation-tiles.yaml',
-    attribution: '<a href="https://mapzen.com/" target="_blank">Mapzen</a>'
+// var hillshade = Tangram.leafletLayer({
+//     scene: 'styles/elevation-tiles.yaml',
+//     attribution: '<a href="https://mapzen.com/" target="_blank">Mapzen</a>'
+// }).addTo(map);
+
+var bgLayer = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/terrain-background/{z}/{x}/{y}.{ext}', {
+  attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  subdomains: 'abcd',
+  ext: 'png'
 }).addTo(map);
 
 map.on('moveend', function() {
@@ -134,7 +142,7 @@ var CanvasLayer = L.GridLayer.extend({
         clearTimeout(wait);
         wait = setTimeout(getRelief,500); // only draw after a reasonable delay, so that we don't redraw on every single tile load
       }
-      img.src = 'https://tile.mapzen.com/mapzen/terrain/v1/terrarium/'+coords.z+'/'+coords.x+'/'+coords.y+'.png?api_key=mapzen-GR9NVHq'
+      img.src = 'http://elevation-tiles-prod.s3.amazonaws.com/terrarium/'+coords.z+'/'+coords.x+'/'+coords.y+'.png'
       return tile;
   }
 });
@@ -145,11 +153,11 @@ var pane = map.createPane('flow');
 pane.appendChild(flowCanvas);
 
 // another custom pane for a second mapzen layer with large lakes (to mask flows across them)
-var lakesPane = map.createPane('lakes');
-var lakes = Tangram.leafletLayer({
-    scene: 'styles/lakes.yaml',
-    pane: 'lakes'
-}).addTo(map);
+// var lakesPane = map.createPane('lakes');
+// var lakes = Tangram.leafletLayer({
+//     scene: 'styles/lakes.yaml',
+//     pane: 'lakes'
+// }).addTo(map);
 
 // this resets our canvas back to top left of the window after panning the map
 // Mapzen layers do this internally; need it for the custom flow canvas layer
@@ -158,16 +166,16 @@ function reverseTransform() {
   L.DomUtil.setPosition(flowCanvas, top_left);
 };
 
-document.getElementById('search').addEventListener('keydown', function (e) {
-  if (e.keyCode == 13) {
-    loadJSON('https://search.mapzen.com/v1/search?api_key=mapzen-GR9NVHq&text=' + this.value, function (result) {
-      if (result.features.length) {
-        var zoom;
-        map.setView([result.features[0].geometry.coordinates[1], result.features[0].geometry.coordinates[0]], 9);
-      }
-    });
-  }
-})
+// document.getElementById('search').addEventListener('keydown', function (e) {
+//   if (e.keyCode == 13) {
+//     loadJSON('https://search.mapzen.com/v1/search?api_key=mapzen-GR9NVHq&text=' + this.value, function (result) {
+//       if (result.features.length) {
+//         var zoom;
+//         map.setView([result.features[0].geometry.coordinates[1], result.features[0].geometry.coordinates[0]], 9);
+//       }
+//     });
+//   }
+// })
 
 
 function getRelief(){

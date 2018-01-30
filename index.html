@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
   <script src="lib/leaflet-hash.js"></script>
-  <script src="https://mapzen.com/tangram/0.9/tangram.min.js"></script>
+  <script src="lib/tangram.min.js"></script>
   <style>
     html, body { 
       margin: 0;
@@ -87,6 +87,11 @@
       color: #333;
     }
 
+    .leaflet-tile-pane img {
+      -webkit-filter: grayscale(1) brightness(20%);
+      filter: grayscale(1) brightness(20%);
+    }
+
   </style>
 </head>
 
@@ -94,8 +99,9 @@
   <div id='wrapper'>
     <div id='map' style='width:800px;height:530px;'></div>
     <div id='intro'>
-      <p>Move the map to explore the world's flowing terrain, or try one of the example locations below.</p>
-      <input type='text' size='16' id='search' class='button'></input>
+      <p>Move the map to explore the world's flowing terrain, or try one of the example locations below.<br>
+        <span style="color:#ccc;font-size: 14px">This map is missing its search function and fancy GL hillshading, for now, because of Mapzen's shutdown. :(</span></p>
+      <!--input type='text' size='16' id='search' class='button'></input-->
     </div>
     <div id='drawing'>
       Loading...
